@@ -1,7 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using UnityEditor;
+using UnityEngine;
 
 public class LevelBuilder : EditorWindow
 {
@@ -56,7 +55,7 @@ public class LevelBuilder : EditorWindow
         {
             if (Raycast(out Vector3 contactPoint))
             {
-                DrawPounter(contactPoint, Color.red);
+                DrawPointer(contactPoint, Color.red);
 
                 if (CheckInput())
                 {
@@ -82,8 +81,11 @@ public class LevelBuilder : EditorWindow
         return false;
     }
 
-    private void DrawPounter(Vector3 position, Color color)
+    private void DrawPointer(Vector3 position, Color color)
     {
+        GameObject prefab = _catalog[_selectedElement];
+        _createdObject = Instantiate(prefab);
+
         Handles.color = color;
         Handles.DrawWireCube(position, Vector3.one);
     }
@@ -99,9 +101,7 @@ public class LevelBuilder : EditorWindow
     {
         if (_selectedElement < _catalog.Count)
         {
-            GameObject prefab = _catalog[_selectedElement];
-            //GameObject gameObject = PrefabUtility.InstantiatePrefab(prefab) as GameObject;
-            _createdObject = Instantiate(prefab);
+            
             _createdObject.transform.position = position;
             _createdObject.transform.parent = _parent.transform;
 
