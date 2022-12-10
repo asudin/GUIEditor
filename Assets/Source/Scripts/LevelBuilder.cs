@@ -29,6 +29,17 @@ public class LevelBuilder : EditorWindow
 
     private void OnGUI()
     {
+        if (Input.GetKeyDown(KeyCode.A))
+        {
+            Quaternion currentRotation = _createdObject.transform.rotation;
+            currentRotation.eulerAngles += new Vector3(0f, -90, 0f);
+        }
+        if (Input.GetKeyDown(KeyCode.D))
+        {
+            Quaternion currentRotation = _createdObject.transform.rotation;
+            currentRotation.eulerAngles += new Vector3(0f, 90, 0f);
+        }
+
         _parent = (GameObject)EditorGUILayout.ObjectField("Parent", _parent, typeof(GameObject), true);
         EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 
@@ -62,6 +73,15 @@ public class LevelBuilder : EditorWindow
                 if (CheckInput())
                 {
                     CreateObject(contactPoint);
+                }
+
+                if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.A)
+                {
+                    _createdObject.transform.Rotate(0f, 30, 0f);
+                }
+                if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.D)
+                {
+                    _createdObject.transform.Rotate(0f, -30, 0f);
                 }
 
                 sceneView.Repaint();
