@@ -112,7 +112,7 @@ public class LevelBuilder : EditorWindow
     private void DrawCatalog(List<GUIContent> catalogIcons)
     {
         GUILayout.Label("Buildings");
-        _selectedElement = GUILayout.SelectionGrid(_selectedElement, catalogIcons.ToArray(), 4, GUILayout.Width(400), GUILayout.Height(1000));
+        _selectedElement = GUILayout.SelectionGrid(_selectedElement, catalogIcons.ToArray(), 4, GUILayout.Width(600), GUILayout.Height(300));
     }
 
     private List<GUIContent> GetCatalogIcons()
