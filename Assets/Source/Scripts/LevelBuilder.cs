@@ -31,14 +31,16 @@ public class LevelBuilder : EditorWindow
     {
         _parent = (GameObject)EditorGUILayout.ObjectField("Parent", _parent, typeof(GameObject), true);
         EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
+
         if (_createdObject != null)
         {
             EditorGUILayout.LabelField("Created Object Settings");
             Transform createdTransform = _createdObject.transform;
             createdTransform.position = EditorGUILayout.Vector3Field("Position", createdTransform.position);
-            createdTransform.rotation = Quaternion.Euler(EditorGUILayout.Vector3Field("Position", createdTransform.rotation.eulerAngles));
-            createdTransform.localScale = EditorGUILayout.Vector3Field("Position", createdTransform.localScale);
+            createdTransform.rotation = Quaternion.Euler(EditorGUILayout.Vector3Field("Rotation", createdTransform.rotation.eulerAngles));
+            createdTransform.localScale = EditorGUILayout.Vector3Field("Scale", createdTransform.localScale);
         }
+
         EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
         _building = GUILayout.Toggle(_building, "Start building", "Button", GUILayout.Height(60));
         EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
@@ -83,8 +85,13 @@ public class LevelBuilder : EditorWindow
 
     private void DrawPointer(Vector3 position, Color color)
     {
-        GameObject prefab = _catalog[_selectedElement];
-        _createdObject = Instantiate(prefab);
+        if (_createdObject == null)
+        {
+            GameObject prefab = _catalog[_selectedElement];
+            _createdObject = Instantiate(prefab);
+        }
+        
+        _createdObject.transform.position = position;
 
         Handles.color = color;
         Handles.DrawWireCube(position, Vector3.one);
@@ -101,12 +108,14 @@ public class LevelBuilder : EditorWindow
     {
         if (_selectedElement < _catalog.Count)
         {
-            
+            _createdObject.AddComponent<MeshCollider>();
             _createdObject.transform.position = position;
             _createdObject.transform.parent = _parent.transform;
 
             Undo.RegisterCreatedObjectUndo(_createdObject, "Create Building");
         }
+
+        _createdObject = null;
     }
 
     private void DrawCatalog(List<GUIContent> catalogIcons)
