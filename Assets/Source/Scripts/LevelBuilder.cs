@@ -99,7 +99,7 @@ public class LevelBuilder : EditorWindow
             GameObject prefab = _catalog[_selectedElement];
             _createdObject = Instantiate(prefab);
         }
-        
+
         _createdObject.transform.position = position;
 
         Handles.color = color;
