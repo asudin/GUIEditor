@@ -5,7 +5,7 @@ using UnityEditor;
 
 public class LevelBuilder : EditorWindow
 {
-    private const string _path = "Assets/Editor Resources/Buildings";
+    private const string _path = "Assets/Source/Prefabs/Houses";
 
     private Vector2 _scrollPosition;
     private int _selectedElement;
