@@ -35,10 +35,7 @@ public class LevelBuilder : EditorWindow
         if (_createdObject != null)
         {
             EditorGUILayout.LabelField("Created Object Settings");
-            Transform createdTransform = _createdObject.transform;
-            createdTransform.position = EditorGUILayout.Vector3Field("Position", createdTransform.position);
-            createdTransform.rotation = Quaternion.Euler(EditorGUILayout.Vector3Field("Rotation", createdTransform.rotation.eulerAngles));
-            createdTransform.localScale = EditorGUILayout.Vector3Field("Scale", createdTransform.localScale);
+            InspectorUpdate();
         }
 
         EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
@@ -51,6 +48,14 @@ public class LevelBuilder : EditorWindow
         EditorGUILayout.EndVertical();
     }
 
+    private void InspectorUpdate()
+    {
+        Transform createdTransform = _createdObject.transform;
+        createdTransform.position = EditorGUILayout.Vector3Field("Position", createdTransform.position);
+        createdTransform.rotation = Quaternion.Euler(EditorGUILayout.Vector3Field("Rotation", createdTransform.rotation.eulerAngles));
+        createdTransform.localScale = EditorGUILayout.Vector3Field("Scale", createdTransform.localScale);
+    }
+
     private void OnSceneGUI(SceneView sceneView)
     {
         if (_building)
@@ -59,6 +64,7 @@ public class LevelBuilder : EditorWindow
             {
                 DrawPointer(contactPoint, Color.red);
                 RotateObject();
+                InspectorUpdate();
 
                 if (CheckInput())
                 {
@@ -157,13 +163,5 @@ public class LevelBuilder : EditorWindow
         string[] prefabFiles = System.IO.Directory.GetFiles(_path, "*.prefab");
         foreach (var prefabFile in prefabFiles)
             _catalog.Add(AssetDatabase.LoadAssetAtPath(prefabFile, typeof(GameObject)) as GameObject);
-    }
-
-    private void UpdateSelectable()
-    {
-        foreach (var prefabFile in _catalog)
-        {
-            
-        }
     }
 }
