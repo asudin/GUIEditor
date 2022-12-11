@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -10,6 +11,7 @@ public class LevelBuilder : EditorWindow
     private int _selectedElement;
     private List<GameObject> _catalog = new List<GameObject>();
     private bool _building;
+    private LayerMask _buildingLayer;
 
     private GameObject _createdObject;
     private GameObject _parent;
@@ -35,6 +37,8 @@ public class LevelBuilder : EditorWindow
         }
 
         _parent = (GameObject)EditorGUILayout.ObjectField("Parent", _parent, typeof(GameObject), true);
+        _buildingLayer = EditorGUILayout.LayerField(_buildingLayer);
+
         EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
         _building = GUILayout.Toggle(_building, "Start building", "Button", GUILayout.Height(60));
         EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
@@ -58,7 +62,7 @@ public class LevelBuilder : EditorWindow
                 {
                     CreateObject(contactPoint);
                 }
-                
+
                 sceneView.Repaint();
             }
         }
@@ -69,7 +73,8 @@ public class LevelBuilder : EditorWindow
         Ray guiRay = HandleUtility.GUIPointToWorldRay(Event.current.mousePosition);
         contactPoint = Vector3.zero;
 
-        if (Physics.Raycast(guiRay, out RaycastHit raycastHit))
+        if (Physics.Raycast(guiRay, out RaycastHit raycastHit, float.PositiveInfinity,
+            LayerMask.GetMask(LayerMask.LayerToName(_parent.layer))))
         {
             contactPoint = raycastHit.point;
             return true;
@@ -97,10 +102,20 @@ public class LevelBuilder : EditorWindow
     {
         if (_selectedElement < _catalog.Count)
         {
-            _createdObject.AddComponent<MeshCollider>();
-            ObjectParentPlacement(position);
+            MeshRenderer meshRenderer = _createdObject.GetComponent<MeshRenderer>();
 
-            Undo.RegisterCreatedObjectUndo(_createdObject, "Create Building");
+            Collider[] overlapBoxes = Physics.OverlapBox(meshRenderer.bounds.center,
+                meshRenderer.bounds.size, _createdObject.transform.rotation, _buildingLayer.value);
+
+            Debug.Log(overlapBoxes.Length);
+
+            if (overlapBoxes.Length == 0)
+            {
+                _createdObject.AddComponent<MeshCollider>();
+                ObjectParentPlacement(position);
+
+                Undo.RegisterCreatedObjectUndo(_createdObject, "Create Building");
+            }
         }
 
         _createdObject = null;
@@ -121,7 +136,7 @@ public class LevelBuilder : EditorWindow
 
     private void RotateObject(Vector3 position, Color color)
     {
-        var rotationAngle = 15f;
+        var rotationAngle = 90f;
         if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.A)
         {
             _createdObject.transform.Rotate(0f, rotationAngle, 0f);
@@ -133,7 +148,7 @@ public class LevelBuilder : EditorWindow
         }
 
         DrawHandleBox(color, position);
-    } 
+    }
 
     private void DrawCatalog(List<GUIContent> catalogIcons)
     {
