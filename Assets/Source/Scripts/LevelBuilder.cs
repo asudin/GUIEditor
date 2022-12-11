@@ -46,8 +46,8 @@ public class LevelBuilder : EditorWindow
         {
             if (Raycast(out Vector3 contactPoint))
             {
-                DrawPointer(contactPoint, Color.red);
-                RotateObject();
+                DrawPointer(contactPoint);
+                RotateObject(contactPoint, Color.red);
 
                 if (CheckInput())
                 {
@@ -73,14 +73,12 @@ public class LevelBuilder : EditorWindow
         return false;
     }
 
-    private void DrawPointer(Vector3 position, Color color)
+    private void DrawPointer(Vector3 position)
     {
         if (_createdObject == null)
             _createdObject = Instantiate(_catalog[_selectedElement]);
 
         ObjectParentPlacement(position);
-
-        DrawHandleBox(color, position);
     }
 
     private void DrawHandleBox(Color color, Vector3 position)
@@ -116,7 +114,7 @@ public class LevelBuilder : EditorWindow
         return Event.current.type == EventType.MouseDown && Event.current.button == 0;
     }
 
-    private void RotateObject()
+    private void RotateObject(Vector3 position, Color color)
     {
         var rotationAngle = 15f;
         if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.A)
@@ -128,6 +126,8 @@ public class LevelBuilder : EditorWindow
         {
             _createdObject.transform.Rotate(0f, -rotationAngle, 0f);
         }
+
+        DrawHandleBox(color, position);
     }
     
 
