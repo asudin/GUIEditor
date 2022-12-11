@@ -58,21 +58,13 @@ public class LevelBuilder : EditorWindow
             if (Raycast(out Vector3 contactPoint))
             {
                 DrawPointer(contactPoint, Color.red);
+                RotateObject();
 
                 if (CheckInput())
                 {
                     CreateObject(contactPoint);
                 }
-
-                if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.A)
-                {
-                    _createdObject.transform.Rotate(0f, 30, 0f);
-                }
-                if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.D)
-                {
-                    _createdObject.transform.Rotate(0f, -30, 0f);
-                }
-
+                
                 sceneView.Repaint();
             }
         }
@@ -95,22 +87,12 @@ public class LevelBuilder : EditorWindow
     private void DrawPointer(Vector3 position, Color color)
     {
         if (_createdObject == null)
-        {
-            GameObject prefab = _catalog[_selectedElement];
-            _createdObject = Instantiate(prefab);
-        }
+            _createdObject = Instantiate(_catalog[_selectedElement]);
 
         _createdObject.transform.position = position;
 
         Handles.color = color;
         Handles.DrawWireCube(position, Vector3.one);
-    }
-
-    private bool CheckInput()
-    {
-        HandleUtility.AddDefaultControl(0);
-
-        return Event.current.type == EventType.MouseDown && Event.current.button == 0;
     }
 
     private void CreateObject(Vector3 position)
@@ -127,10 +109,31 @@ public class LevelBuilder : EditorWindow
         _createdObject = null;
     }
 
+    private bool CheckInput()
+    {
+        HandleUtility.AddDefaultControl(0);
+
+        return Event.current.type == EventType.MouseDown && Event.current.button == 0;
+    }
+
+    private void RotateObject()
+    {
+        if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.A)
+        {
+            _createdObject.transform.Rotate(0f, 30, 0f);
+        }
+
+        if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.D)
+        {
+            _createdObject.transform.Rotate(0f, -30, 0f);
+        }
+    }
+    
+
     private void DrawCatalog(List<GUIContent> catalogIcons)
     {
         GUILayout.Label("Buildings");
-        _selectedElement = GUILayout.SelectionGrid(_selectedElement, catalogIcons.ToArray(), 4, GUILayout.Width(600), GUILayout.Height(300));
+        _selectedElement = GUILayout.SelectionGrid(_selectedElement, catalogIcons.ToArray(), 4, GUILayout.Width(400), GUILayout.Height(200));
     }
 
     private List<GUIContent> GetCatalogIcons()
@@ -154,5 +157,13 @@ public class LevelBuilder : EditorWindow
         string[] prefabFiles = System.IO.Directory.GetFiles(_path, "*.prefab");
         foreach (var prefabFile in prefabFiles)
             _catalog.Add(AssetDatabase.LoadAssetAtPath(prefabFile, typeof(GameObject)) as GameObject);
+    }
+
+    private void UpdateSelectable()
+    {
+        foreach (var prefabFile in _catalog)
+        {
+            
+        }
     }
 }
