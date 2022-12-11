@@ -29,6 +29,11 @@ public class LevelBuilder : EditorWindow
 
     private void OnGUI()
     {
+        if (_createdObject != null)
+        {
+            DestroyImmediate(_createdObject);
+        }
+
         _parent = (GameObject)EditorGUILayout.ObjectField("Parent", _parent, typeof(GameObject), true);
         EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
         _building = GUILayout.Toggle(_building, "Start building", "Button", GUILayout.Height(60));
@@ -83,9 +88,9 @@ public class LevelBuilder : EditorWindow
 
     private void DrawHandleBox(Color color, Vector3 position)
     {
-        Mesh mesh = _createdObject.GetComponentsInChildren<MeshFilter>()[0].sharedMesh;
         Handles.color = color;
-        Handles.DrawWireCube(position, mesh.bounds.size);
+        Bounds bounds = _createdObject.GetComponent<MeshRenderer>().bounds;
+        Handles.DrawWireCube(bounds.center, bounds.size);
     }
 
     private void CreateObject(Vector3 position)
@@ -128,8 +133,7 @@ public class LevelBuilder : EditorWindow
         }
 
         DrawHandleBox(color, position);
-    }
-    
+    } 
 
     private void DrawCatalog(List<GUIContent> catalogIcons)
     {
