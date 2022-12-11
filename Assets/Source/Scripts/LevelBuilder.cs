@@ -31,14 +31,6 @@ public class LevelBuilder : EditorWindow
     {
         _parent = (GameObject)EditorGUILayout.ObjectField("Parent", _parent, typeof(GameObject), true);
         EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
-
-        if (_createdObject != null)
-        {
-            EditorGUILayout.LabelField("Created Object Settings");
-            InspectorUpdate();
-        }
-
-        EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
         _building = GUILayout.Toggle(_building, "Start building", "Button", GUILayout.Height(60));
         EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
         EditorGUILayout.BeginVertical(GUI.skin.window);
@@ -46,14 +38,6 @@ public class LevelBuilder : EditorWindow
         DrawCatalog(GetCatalogIcons());
         EditorGUILayout.EndScrollView();
         EditorGUILayout.EndVertical();
-    }
-
-    private void InspectorUpdate()
-    {
-        Transform createdTransform = _createdObject.transform;
-        createdTransform.position = EditorGUILayout.Vector3Field("Position", createdTransform.position);
-        createdTransform.rotation = Quaternion.Euler(EditorGUILayout.Vector3Field("Rotation", createdTransform.rotation.eulerAngles));
-        createdTransform.localScale = EditorGUILayout.Vector3Field("Scale", createdTransform.localScale);
     }
 
     private void OnSceneGUI(SceneView sceneView)
@@ -64,7 +48,6 @@ public class LevelBuilder : EditorWindow
             {
                 DrawPointer(contactPoint, Color.red);
                 RotateObject();
-                InspectorUpdate();
 
                 if (CheckInput())
                 {
@@ -95,10 +78,16 @@ public class LevelBuilder : EditorWindow
         if (_createdObject == null)
             _createdObject = Instantiate(_catalog[_selectedElement]);
 
-        _createdObject.transform.position = position;
+        ObjectParentPlacement(position);
 
+        DrawHandleBox(color, position);
+    }
+
+    private void DrawHandleBox(Color color, Vector3 position)
+    {
+        Mesh mesh = _createdObject.GetComponentsInChildren<MeshFilter>()[0].sharedMesh;
         Handles.color = color;
-        Handles.DrawWireCube(position, Vector3.one);
+        Handles.DrawWireCube(position, mesh.bounds.size);
     }
 
     private void CreateObject(Vector3 position)
@@ -106,13 +95,18 @@ public class LevelBuilder : EditorWindow
         if (_selectedElement < _catalog.Count)
         {
             _createdObject.AddComponent<MeshCollider>();
-            _createdObject.transform.position = position;
-            _createdObject.transform.parent = _parent.transform;
+            ObjectParentPlacement(position);
 
             Undo.RegisterCreatedObjectUndo(_createdObject, "Create Building");
         }
 
         _createdObject = null;
+    }
+
+    private void ObjectParentPlacement(Vector3 position)
+    {
+        _createdObject.transform.position = position;
+        _createdObject.transform.parent = _parent.transform;
     }
 
     private bool CheckInput()
@@ -124,14 +118,15 @@ public class LevelBuilder : EditorWindow
 
     private void RotateObject()
     {
+        var rotationAngle = 15f;
         if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.A)
         {
-            _createdObject.transform.Rotate(0f, 30, 0f);
+            _createdObject.transform.Rotate(0f, rotationAngle, 0f);
         }
 
         if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.D)
         {
-            _createdObject.transform.Rotate(0f, -30, 0f);
+            _createdObject.transform.Rotate(0f, -rotationAngle, 0f);
         }
     }
     
